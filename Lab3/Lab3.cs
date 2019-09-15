@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Collections.Generic;
+using System.IO;
 
 public class Program
 {
@@ -41,6 +42,8 @@ public class Stock
     int maximumChange;
     int changes;
     int notificationThreshold;
+    bool thresholdReached;
+    static object lockObject = new object();
     public Notification _notification = new Notification();
     Thread thread;
 
@@ -50,8 +53,10 @@ public class Stock
         initalValue = iv;
         currentValue = iv;
         maximumChange = mc;
-        notificationThreshold = nt;
         changes = 0;
+        notificationThreshold = nt;
+        thresholdReached = false;
+        _notification.saveEvent += notification_saveEvent;
         thread = new Thread(Activate);
         thread.Start();
     }
@@ -72,12 +77,27 @@ public class Stock
         currentValue += rand.Next(1, maximumChange);
         if (currentValue - initalValue > notificationThreshold)
         {
+            if (thresholdReached == false)
+            {
+                thresholdReached = true;
+                _notification.saveStock(DateTime.Now, name, initalValue, currentValue);
+            }
             _notification.printStock(name, currentValue, changes);
-            initalValue = currentValue;
         }
     }
 
-    
+    static void notification_saveEvent(DateTime dt, string sn, int iv, int cv)
+    {
+        string path = Directory.GetCurrentDirectory();
+        lock (lockObject)
+        {
+            using (StreamWriter outputFile = new StreamWriter(Path.Combine(path, "WriteLines.txt"), true))
+            {
+                outputFile.WriteLine("{0, -15} {1, -15} {2, -15} {3, -15}\n", dt.ToString(), sn, iv, cv);
+            }
+        }
+    }
+
 }
 
 public class StockBroker
@@ -87,16 +107,15 @@ public class StockBroker
     public StockBroker(string name)
     {
         brokerName = name;
-        //_notification.stockEvent += notification_strockEvent;
     }
 
     public void AddStock(Stock stock)
     {
         listOfStocks.Add(stock);
-        stock._notification.stockEvent += notification_strockEvent;
+        stock._notification.stockEvent += notification_stockEvent;
     }
 
-    void notification_strockEvent(string stockName, int currentValue, int numberChanges)
+    void notification_stockEvent(string stockName, int currentValue, int numberChanges)
     {
         Console.WriteLine("{0, -15} {1, -15} {2, -15} {3, -15}", brokerName, stockName, currentValue, numberChanges);
     }
@@ -109,7 +128,6 @@ public class Notification
 
     public event StockNotification stockEvent;
     public event SaveNotification saveEvent;
-
 
     public Notification()
     {
@@ -126,5 +144,6 @@ public class Notification
     {
         if (saveEvent != null)
             saveEvent?.Invoke(dateTime, stockName, initialValue, currentValue);
+        Console.WriteLine("Saving info: {0, -15} {1, -15} {2, -15} {3, -15}", dateTime.ToString(), stockName, initialValue, currentValue);
     }
 }
