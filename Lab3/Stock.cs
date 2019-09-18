@@ -3,7 +3,6 @@ using System.Threading;
 using System.IO;
 
 
-
 public class Stock
 {
     // declare variables

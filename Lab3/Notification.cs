@@ -1,16 +1,12 @@
 ﻿using System;
 
+
 public class Notification
 {
     // declare event handelr for when a stock changes
     public event EventHandler<StockEventArgs> stockEvent;
     // declare event handler for when a stock is saved
     public event EventHandler<SaveEventArgs> saveEvent;
-
-    public Notification()
-    {
-
-    }
 
 
     public void printStock(string stockName, int currentValue, int numberChanges)
