@@ -2,7 +2,9 @@
 
 public class Notification
 {
+    // declare event handelr for when a stock changes
     public event EventHandler<StockEventArgs> stockEvent;
+    // declare event handler for when a stock is saved
     public event EventHandler<SaveEventArgs> saveEvent;
 
     public Notification()
@@ -19,6 +21,7 @@ public class Notification
             e.stockName = stockName;
             e.currentValue = currentValue;
             e.numberChanges = numberChanges;
+            // raises event when printStock is called
             stockEvent?.Invoke(this, e);
         }
     }
@@ -31,6 +34,7 @@ public class Notification
             e.stockName = stockName;
             e.initialValue = initialValue;
             e.currentValue = currentValue;
+            // raises event when saveStock is called
             saveEvent?.Invoke(this, e);
         }
     }

@@ -1,11 +1,20 @@
-﻿using System.IO;
+﻿/*
+ * Tajbir Sandhu
+ * 9/17/2019
+ * CECS 475
+ */
+
+using System.IO;
 
 public class Program
 {
     public static void Main()
     {
+        // clears file
         string path = Directory.GetCurrentDirectory();
         System.IO.File.WriteAllText(Path.Combine(path, "WriteLines.txt"), string.Empty);
+
+        // tester
         Stock stock1 = new Stock("Technology", 160, 5, 15);
         Stock stock2 = new Stock("Retail", 30, 2, 6);
         Stock stock3 = new Stock("Banking", 90, 4, 10);

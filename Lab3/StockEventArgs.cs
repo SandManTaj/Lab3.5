@@ -1,5 +1,6 @@
 ﻿using System;
 
+// event arguments for stockEvent
 public class StockEventArgs : EventArgs
 {
     public string stockName { get; set; }
