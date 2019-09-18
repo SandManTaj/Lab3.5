@@ -1,4 +1,10 @@
-﻿using System;
+﻿/*
+ * Tajbir Sandhu
+ * 9/17/2019
+ * CECS 475
+ */
+
+using System;
 using System.Threading;
 using System.Collections.Generic;
 using System.IO;
@@ -7,6 +13,8 @@ public class Program
 {
     public static void Main()
     {
+        string path = Directory.GetCurrentDirectory();
+        System.IO.File.WriteAllText(Path.Combine(path, "WriteLines.txt"), string.Empty);
         Stock stock1 = new Stock("Technology", 160, 5, 15);
         Stock stock2 = new Stock("Retail", 30, 2, 6);
         Stock stock3 = new Stock("Banking", 90, 4, 10);
@@ -36,6 +44,7 @@ public class Program
 
 public class Stock
 {
+    // class variables
     string name;
     int initalValue;
     int currentValue;
@@ -43,9 +52,10 @@ public class Stock
     int changes;
     int notificationThreshold;
     bool thresholdReached;
-    static object lockObject = new object();
     public Notification _notification = new Notification();
     Thread thread;
+    // lock object used to avoid thread collision
+    static object lockObject = new object();
 
     public Stock(string nm, int iv, int mc, int nt)
     {
@@ -57,10 +67,12 @@ public class Stock
         notificationThreshold = nt;
         thresholdReached = false;
         _notification.saveEvent += notification_saveEvent;
+        // creates a new thread
         thread = new Thread(Activate);
         thread.Start();
     }
 
+    // changes the event current value every .5 seconds
     public void Activate()
     {
         for(;;)
@@ -70,6 +82,7 @@ public class Stock
         }
     }
 
+    // changes the value of the stock
     void changeStockValue()
     {
         Random rand = new Random();
@@ -80,14 +93,18 @@ public class Stock
             if (thresholdReached == false)
             {
                 thresholdReached = true;
+                // raises the saveStock event
                 _notification.saveStock(DateTime.Now, name, initalValue, currentValue);
             }
+            // raises the printStock event
             _notification.printStock(name, currentValue, changes);
         }
     }
 
+    // writes when the threshold is passed onto a file a prints a notification
     static void notification_saveEvent(DateTime dt, string sn, int iv, int cv)
     {
+        Console.WriteLine("Saving info: {0, -15} {1, -15} {2, -15} {3, -15}", dt.ToString(), sn, iv, cv);
         string path = Directory.GetCurrentDirectory();
         lock (lockObject)
         {
@@ -109,12 +126,15 @@ public class StockBroker
         brokerName = name;
     }
 
+    // adds a stock to a broker
     public void AddStock(Stock stock)
     {
         listOfStocks.Add(stock);
+        // subscribes to the stockEvent
         stock._notification.stockEvent += notification_stockEvent;
     }
 
+    // prints whenever the stock value is changed after 
     void notification_stockEvent(string stockName, int currentValue, int numberChanges)
     {
         Console.WriteLine("{0, -15} {1, -15} {2, -15} {3, -15}", brokerName, stockName, currentValue, numberChanges);
@@ -144,6 +164,5 @@ public class Notification
     {
         if (saveEvent != null)
             saveEvent?.Invoke(dateTime, stockName, initialValue, currentValue);
-        Console.WriteLine("Saving info: {0, -15} {1, -15} {2, -15} {3, -15}", dateTime.ToString(), stockName, initialValue, currentValue);
     }
 }
