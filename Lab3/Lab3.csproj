@@ -36,7 +36,12 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Lab3.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Notification.cs" />
+    <Compile Include="SaveEventArgs.cs" />
+    <Compile Include="Stock.cs" />
+    <Compile Include="StockBroker.cs" />
+    <Compile Include="StockEventArgs.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
